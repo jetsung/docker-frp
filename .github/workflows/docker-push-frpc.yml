@@ -1,0 +1,60 @@
+name: docker build frpc
+
+on:
+  push:
+    paths:
+      - "Dockerfile-frpc"
+      - ".github/workflows/docker-push-frpc.yml"   
+    
+env:
+  # Use x for Docker Hub if empty. ghcr.io / docker.io
+  REGISTRY: docker.io    
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - 
+      name: Check out the repo
+      uses: actions/checkout@v2    
+    - 
+      name: Setup QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - 
+      name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    
+    - 
+      name: Login into registry ${{ env.REGISTRY }}   
+      uses: docker/login-action@v1      
+      with:
+        registry: ${{ env.REGISTRY }}   
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}   
+    - 
+      name: Get tag to build
+      id: tag
+      run: |
+        FRP_VER=$(curl -sL --retry 5 "https://api.github.com/repos/fatedier/frp/releases/latest" | grep '"tag_name":' | cut -d'"' -f4)
+        echo "Use the latest release tag of frp: ${FRP_VER}"
+        echo ::set-output name=tag::${FRP_VER:1}
+    - 
+      name: Prepare environment variables
+      id: prepare
+      run: |
+        echo ::set-output name=docker_platforms::linux/amd64,linux/arm64,linux/386
+        echo ::set-output name=docker_image::devcto/frpc
+        echo ::set-output name=docker_tag::${{ steps.tag.outputs.tag }}
+        echo ::set-output name=docker_is_push::true
+    -
+      name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        platforms: ${{ steps.prepare.outputs.docker_platforms }}
+        outputs: type=image
+        push: ${{ steps.prepare.outputs.docker_is_push }}
+        tags: ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.docker_tag }}, ${{ steps.prepare.outputs.docker_image }}:latest
+        build-args: FRP_VER=${{ steps.prepare.outputs.docker_tag }}
+        file: Dockerfile-frpc

@@ -1,0 +1,22 @@
+FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:3 AS temp
+
+ARG FRP_VER=0.37.0
+ARG TARGETARCH
+ARG BUILDPLATFORM
+ENV FILE_NAME="frp_${FRP_VER}_linux_${TARGETARCH}"
+
+RUN set -ex \
+    && wget https://github.com/fatedier/frp/releases/download/v${FRP_VER}/${FILE_NAME}.tar.gz \
+    && tar -zxvf "${FILE_NAME}.tar.gz" \
+    && mv "${FILE_NAME}" /tmp/frp
+
+FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:3
+ARG BUILDPLATFORM
+
+WORKDIR /app
+
+COPY --from=temp /tmp/frp/frpc /usr/bin/frpc
+COPY --from=temp /tmp/frp/frpc.ini ./
+COPY --from=temp /tmp/frp/frpc_full.ini ./
+
+ENTRYPOINT ["/usr/bin/frpc", "-c", "./frpc.ini"]
