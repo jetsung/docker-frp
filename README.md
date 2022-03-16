@@ -1,4 +1,4 @@
-## Docker-FRP
+## docker-frp
 
 - **支持构架：** ARM64、AMD64、386
 
@@ -7,7 +7,7 @@
 - https://hub.docker.com/r/devcto/frpc
 
 
-### Build Images
+### 手动构建
 ```
 git clone https://github.com/skiy/docker-frp.git
 cd docker-frp
@@ -17,8 +17,7 @@ docker build -t frps -f ./Dockerfile-frps .
 
 ---
 
-### 「frps」
-#### Usage
+### frps
 `docker-compose.yaml`
 ```yaml
 version: '3'
@@ -43,8 +42,7 @@ docker run -d \
 devcto/frps:latest
 ```
 
-#### frps conf ini file
-- [frps.ini](https://github.com/fatedier/frp/blob/dev/conf/frps.ini)
+[frps.ini](https://github.com/fatedier/frp/blob/dev/conf/frps.ini)
 ```
 [common]
 bind_port = 7000
@@ -58,12 +56,11 @@ dashboard_user = admin
 dashboard_pwd = admin
 ```
 
-- [frps_full.ini](https://github.com/fatedier/frp/blob/dev/conf/frps_full.ini)
+[frps_full.ini](https://github.com/fatedier/frp/blob/dev/conf/frps_full.ini)
 
 ---
 
-### 「frpc」
-#### Usage
+### frpc
 `docker-compose.yaml`
 ```yaml
 version: '3'
@@ -88,8 +85,7 @@ docker run -d \
 devcto/frpc:latest
 ```
 
-#### frpc conf ini file
-- [frpc.ini](https://github.com/fatedier/frp/blob/dev/conf/frpc.ini)
+[frpc.ini](https://github.com/fatedier/frp/blob/dev/conf/frpc.ini)
 > 需要先将域名 `blog.example.com` A 记录到 IP `xxx.xxx.xxx.xxx`。再通过 `http://blog.example.com:7080` 访问。其中 `7080` 端口是通过 frps 配置文件中的 `vhost_http_port` 配置。可以配合反向代理解决需要添加端口访问的问题。   
 ```
 [common]
@@ -109,7 +105,8 @@ custom_domains = blog.example.com
 
 ```
 
-- [frpc_full.ini](https://github.com/fatedier/frp/blob/dev/conf/frpc_full.ini)
+[frpc_full.ini](https://github.com/fatedier/frp/blob/dev/conf/frpc_full.ini)
 
-### 其它
-更多配置请查看 [FRP 项目](https://github.com/fatedier/frp)
+---
+
+更多配置请查看 [FRP 官方](https://github.com/fatedier/frp)
